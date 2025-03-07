@@ -1,0 +1,16 @@
+<mxfile host="65bd71144e">
+    <diagram id="Cx3FvBQ2gOTeGppl6pro" name="Page-1">
+        <mxGraphModel dx="573" dy="332" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="5. Pistony ręczne" style="text;strokeColor=none;fillColor=none;html=1;fontSize=24;fontStyle=1;verticalAlign=middle;align=center;fontColor=#99CCFF;" vertex="1" parent="1">
+                    <mxGeometry width="220" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="Tak samo jak pistony głosów (4)" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="15" y="40" width="175" height="10" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
