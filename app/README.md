@@ -7,3 +7,4 @@ Część aplikacji to oprogramowanie przede wszystkim dedykowane do mojego rozwi
 Ważna jest optymalizacja i szybkość działania, zatem postawię na:
 - **C/C++** - język programowania
 - **Qt Quick** - do UI. Bogate community, mam doświadczenie z Pythona, dobre z pracą z ekranami dotykowymi.
+- **RtMidi** - do komunikacji MIDI-USB
