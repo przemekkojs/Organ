@@ -26,7 +26,7 @@ const float ALPHA = 0.1;
 
 uint8_t N_SWELLS = 4;
 uint8_t SWELL_POSITIONS[MAX_SWELLS] = { 8, 8, 8, 8 };
-uint8_t SWELL_PINS[MAX_SWELLS] = { A0, A1, A6, A3 }; // Piny potencjometrów żaluzji
+uint8_t SWELL_PINS[MAX_SWELLS] = { A0, A1, A2, A3 }; // Piny potencjometrów żaluzji
 
 const uint8_t CRESCENDO_PIN = 4;
 uint8_t CRESCENDO_POSITIONS = 16;
@@ -120,25 +120,25 @@ void swellsLogic() {
         bool lower = value < tmp;
 
         if (differ && (lower || higher)) {
-            if (lower)
-                Serial.print("lower - ");
-            if (higher)
-                Serial.print("higher - ");
+            // if (lower)
+            //     Serial.print("lower - ");
+            // if (higher)
+            //     Serial.print("higher - ");
 
-            Serial.print(index);
-            Serial.print(": ");
-            Serial.print(value);
-            Serial.print(" ");
-            Serial.print(lastValue);
-            Serial.print(" ");
-            Serial.print(lastValue + POTENTIOMETER_BOUNCE);
-            Serial.print(" ");
-            Serial.println(tmp);
+            // Serial.print(index);
+            // Serial.print(": ");
+            // Serial.print(value);
+            // Serial.print(" ");
+            // Serial.print(lastValue);
+            // Serial.print(" ");
+            // Serial.print(lastValue + POTENTIOMETER_BOUNCE);
+            // Serial.print(" ");
+            // Serial.println(tmp);
 
             uint8_t channel = SWELL_START_CHANNEL + index;
             uint8_t maxPositions = SWELL_POSITIONS[index];
 
-            //setOutput(pin, value, channel, maxPositions);            
+            setOutput(pin, value, channel, maxPositions);            
             lastSwellValues[index] = value;
         }
     }
@@ -163,17 +163,17 @@ void setOutput(uint8_t pin, uint16_t value, uint8_t channel, uint8_t maxPosition
         VALUE_MAX : (MIDI_value < VALUE_MIN ?
             VALUE_MIN : MIDI_value);
 
-    //sendMidi(CC[channel], channel, MIDI_value);
+    sendMidi(CC[channel], channel, MIDI_value);
 
-    Serial.print((uint16_t)pin);
-    Serial.print(" ");
-    Serial.print((uint16_t)value);
-    Serial.print(" ");
-    Serial.print((uint16_t)calculated);
-    Serial.print(" ");
-    Serial.print((uint16_t)MIDI_value);
-    Serial.print(" ");
-    Serial.println((uint16_t)maxPositions);
+    // Serial.print((uint16_t)pin);
+    // Serial.print(" ");
+    // Serial.print((uint16_t)value);
+    // Serial.print(" ");
+    // Serial.print((uint16_t)calculated);
+    // Serial.print(" ");
+    // Serial.print((uint16_t)MIDI_value);
+    // Serial.print(" ");
+    // Serial.println((uint16_t)maxPositions);
 }
 
 void sendMidi(uint8_t message, uint8_t channel, uint8_t value) {
