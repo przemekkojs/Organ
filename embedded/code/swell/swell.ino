@@ -12,38 +12,39 @@ Ilość żaluzji może być zmieniana, z zakresu od 1 do 4.
 Ilość pozycji każdej z żaluzji może być programowalna, z zakresu 2 - 127.
 Crescendo działa na kanale 10. Ilość pozycji wałka może być programowalna z zakresu 2 - 127.
 
-Drgania styków zostaną wyeliminowanie poprzez hardware - potrzebne będą małe kondensatory (np. 100 nF)
+Drgania styków zostaną wyeliminowanie poprzez hardware - potrzebne będą małe kondensatory (np. 1 uF, jak trzeba więcej to 2.2uF - 4.7uF)
 */
 
 #include <errorCodes.h>
 #include <ports.h>
 #include <constants.h>
 
-const unsigned int POTENTIOMETER_MIN = 0;
-const unsigned int POTENTIOMETER_MAX = 1024;
-const unsigned char POTENTIOMETER_BOUNCE = 4;
+const uint16_t POTENTIOMETER_MAX = 1024;
+const uint8_t POTENTIOMETER_MIN = 0;
+const uint8_t POTENTIOMETER_BOUNCE = 8;
+const float ALPHA = 0.1;
 
-unsigned char N_SWELLS = 1;
-unsigned char SWELL_POSITIONS[MAX_SWELLS] = { 8, 8, 8, 8 };
-unsigned char SWELL_PINS[MAX_SWELLS] = { A0, A1, A2, A3 }; // Piny potencjometrów żaluzji
+uint8_t N_SWELLS = 4;
+uint8_t SWELL_POSITIONS[MAX_SWELLS] = { 8, 8, 8, 8 };
+uint8_t SWELL_PINS[MAX_SWELLS] = { A0, A1, A6, A3 }; // Piny potencjometrów żaluzji
 
-const unsigned char CRESCENDO_PIN = 4;
-unsigned char CRESCENDO_POSITIONS = 16;
+const uint8_t CRESCENDO_PIN = 4;
+uint8_t CRESCENDO_POSITIONS = 16;
 
-const unsigned char INPUT_PIN = 0;
-const unsigned char OUTPUT_PIN = 1;
-const unsigned char BUTTON_PIN = 2;
-const unsigned char LED_PIN = 3;
+const uint8_t INPUT_PIN = 0;
+const uint8_t OUTPUT_PIN = 1;
+const uint8_t BUTTON_PIN = 2;
+const uint8_t LED_PIN = 3;
 
-unsigned int curSwellValues[MAX_SWELLS] = { 0, 0, 0, 0 };
-unsigned int lastSwellValues[MAX_SWELLS] { 0, 0, 0, 0 };
-unsigned int curCrescendoValue = 0;
-unsigned int lastCrescendoValue = 0;
+uint16_t curSwellValues[MAX_SWELLS] = { 0, 0, 0, 0 };
+uint16_t lastSwellValues[MAX_SWELLS] { 0, 0, 0, 0 };
+uint16_t curCrescendoValue = 0;
+uint16_t lastCrescendoValue = 0;
 
 volatile bool crescendoActive = true;
 
 // Zmienia ilość pozycji danej żaluzji
-char changeSwellPositions(char swellIndex, char amount) {
+uint8_t changeSwellPositions(uint8_t swellIndex, uint8_t amount) {
     if (swellIndex < MIN_SWELLS || swellIndex > N_SWELLS)
         return WRONG_SWELL_INDEX;
 
@@ -58,7 +59,7 @@ char changeSwellPositions(char swellIndex, char amount) {
 }
 
 // Zmienia ilość pozycji wałka crescendo
-char changeCrescendoPositions(char amount) {
+uint8_t changeCrescendoPositions(uint8_t amount) {
     if (amount < MIN_CRESCENDO_POSITIONS)
         return TOO_FEW_CRESCENDO_POSITIONS;
     if (amount >= MAX_CRESCENDO_POSITIONS)
@@ -70,7 +71,7 @@ char changeCrescendoPositions(char amount) {
 }
 
 // Zmienia ilość żaluzji
-char changeNSwells (char newAmount) {
+uint8_t changeNSwells(uint8_t newAmount) {
     if (newAmount < MIN_SWELLS)
         return TOO_FEW_SWELLS;
     if (newAmount > MAX_SWELLS)
@@ -81,44 +82,70 @@ char changeNSwells (char newAmount) {
     return OK;
 }
 
-char potentiometerToMidiValue(int value, char maxPositions) {
+uint8_t potentiometerToMidiValue(uint16_t value, uint8_t maxPositions) {
     if (value < POTENTIOMETER_MIN)
         value = POTENTIOMETER_MIN;
     else if (value > POTENTIOMETER_MAX)
         value = POTENTIOMETER_MAX;
 
-    int calculated = value / (POTENTIOMETER_MAX / maxPositions);
+    uint16_t calculated = value / (POTENTIOMETER_MAX / maxPositions);
 
     return calculated < 0 ?
         0 : (calculated > 127 ?
             127 : calculated);
 }
 
+/*
+ * Tak naprawdę implementacja prostego LPF - Low Pass Filter - Filtr dolnoprzepustowy
+ * ALPHA - współczynnik tłumienia. Sygnał zbyt skokowy -> zmniejszamy alpha. Zbyt wolna reakcja filtra -> zwiększamy alpha.
+ */
+uint16_t smoothen(uint16_t newValue, uint16_t lastValue) {
+    return (ALPHA * newValue) + ((1.0 - ALPHA) * lastValue);
+}
+
 void swellsLogic() {
     for (int index = 0; index < N_SWELLS; index++) {
-        unsigned char pin = SWELL_PINS[index];
-        unsigned int lastValue = lastSwellValues[index];     
-        unsigned int value = analogRead(pin);
+        uint8_t pin = SWELL_PINS[index];
+        uint16_t lastValue = lastSwellValues[index];     
+        uint16_t rawValue = analogRead(pin);
+        uint16_t value = smoothen(rawValue, lastValue);
+
         curSwellValues[index] = value;
 
-        if (value > lastValue + POTENTIOMETER_BOUNCE || value < lastValue - POTENTIOMETER_BOUNCE) {            
-            unsigned char channel = SWELL_START_CHANNEL + index;
-            unsigned char maxPositions = SWELL_POSITIONS[index];
+        int16_t tmp = lastValue - POTENTIOMETER_BOUNCE;
+        tmp = tmp < 0 ? 0 : tmp;
 
-            setOutput(pin, value, channel, maxPositions);            
+        bool differ = value != lastValue;
+        bool higher = value > lastValue + POTENTIOMETER_BOUNCE;
+        bool lower = value < tmp;
+
+        if (differ && (lower || higher)) {
+            if (lower)
+                Serial.print("lower - ");
+            if (higher)
+                Serial.print("higher - ");
+
+            Serial.print(index);
+            Serial.print(": ");
+            Serial.print(value);
+            Serial.print(" ");
+            Serial.print(lastValue);
+            Serial.print(" ");
+            Serial.print(lastValue + POTENTIOMETER_BOUNCE);
+            Serial.print(" ");
+            Serial.println(tmp);
+
+            uint8_t channel = SWELL_START_CHANNEL + index;
+            uint8_t maxPositions = SWELL_POSITIONS[index];
+
+            //setOutput(pin, value, channel, maxPositions);            
             lastSwellValues[index] = value;
         }
     }
 }
 
 void crescendoLogic() {
-    int value = analogRead(CRESCENDO_PIN);
-    curCrescendoValue = value;
-
-    if (value > lastCrescendoValue + POTENTIOMETER_BOUNCE || value < lastCrescendoValue - POTENTIOMETER_BOUNCE) {
-        //setOutput(CRESCENDO_PIN, value, CRESCENDO_CHANNEL, CRESCENDO_POSITIONS);
-        lastCrescendoValue = curCrescendoValue;
-    }    
+    // TODO: Wersja dla enkodera
 }
 
 void buttonLogic() {
@@ -128,25 +155,28 @@ void buttonLogic() {
     }
 }
 
-void setOutput(char pin, int value, char channel, char maxPositions) {
-    unsigned char calculated = potentiometerToMidiValue(value, maxPositions);
-    unsigned char MIDI_value = ((VALUE_MAX / (maxPositions - 1)) + 1) * (calculated);
-    MIDI_value = MIDI_value > VALUE_MAX ? VALUE_MAX : (MIDI_value < VALUE_MIN ? VALUE_MIN : MIDI_value);
+void setOutput(uint8_t pin, uint16_t value, uint8_t channel, uint8_t maxPositions) {
+    uint8_t calculated = potentiometerToMidiValue(value, maxPositions);
+    uint8_t MIDI_value = ((VALUE_MAX / (maxPositions - 1)) + 1) * (calculated);
+
+    MIDI_value = MIDI_value > VALUE_MAX ?
+        VALUE_MAX : (MIDI_value < VALUE_MIN ?
+            VALUE_MIN : MIDI_value);
 
     //sendMidi(CC[channel], channel, MIDI_value);
 
-    Serial.print((int)pin);
+    Serial.print((uint16_t)pin);
     Serial.print(" ");
-    Serial.print((int)value);
+    Serial.print((uint16_t)value);
     Serial.print(" ");
-    Serial.print((int)calculated);
+    Serial.print((uint16_t)calculated);
     Serial.print(" ");
-    Serial.print((int)MIDI_value);
+    Serial.print((uint16_t)MIDI_value);
     Serial.print(" ");
-    Serial.println((int)maxPositions);
+    Serial.println((uint16_t)maxPositions);
 }
 
-void sendMidi(char message, char channel, char value) {
+void sendMidi(uint8_t message, uint8_t channel, uint8_t value) {
     Serial.write(message);
     Serial.write(channel);
     Serial.write(value);    
@@ -154,17 +184,17 @@ void sendMidi(char message, char channel, char value) {
 
 void readMidi() {
     if (Serial.available()) {
-        char command = Serial.read();
+        uint8_t command = Serial.read();
 
         if (command == 0x8F && command == 0x9F) {
-            char note = Serial.read();
-            char velocity = Serial.read();
+            uint8_t note = Serial.read();
+            uint8_t velocity = Serial.read();
 
-            char channel = (command & 0x0F);
-            char type = command & 0xF0;
+            uint8_t channel = (command & 0x0F);
+            uint8_t type = command & 0xF0;
 
             if (channel == ERR_CHANNEL) {
-                char result = OK;
+                uint8_t result = OK;
 
                 switch (note) {
                     case CHANGE_N_SWELLS:
@@ -197,7 +227,7 @@ void readMidi() {
 
 // Inicjalizacja
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(115200); //31250 - baud rate dla MIDI. 115200 - baud rate dla hairless-serial.
     pinMode(BUTTON_PIN, INPUT_PULLUP);
     pinMode(LED_PIN, OUTPUT);
 }
