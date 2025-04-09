@@ -1,5 +1,4 @@
-/* 
-
+/*
 ===========
 == SWELL ==
 ===========
@@ -19,29 +18,34 @@ Drgania styków zostaną wyeliminowanie poprzez hardware - potrzebne będą mał
 #include <ports.h>
 #include <constants.h>
 
-const uint16_t POTENTIOMETER_MAX = 1024;
+const uint16_t POTENTIOMETER_MAX = 1023;
 const uint8_t POTENTIOMETER_MIN = 0;
 const uint8_t POTENTIOMETER_BOUNCE = 8;
 const float ALPHA = 0.1;
 
+const uint8_t ENCODER_BOUNCE = 2;
+
 uint8_t N_SWELLS = 4;
 uint8_t SWELL_POSITIONS[MAX_SWELLS] = { 8, 8, 8, 8 };
-uint8_t SWELL_PINS[MAX_SWELLS] = { A0, A1, A2, A3 }; // Piny potencjometrów żaluzji
-
-const uint8_t CRESCENDO_PIN = 4;
-uint8_t CRESCENDO_POSITIONS = 16;
+uint8_t SWELL_PINS[MAX_SWELLS] = { A3, A2, A1, A0 }; // Piny potencjometrów żaluzji
 
 const uint8_t INPUT_PIN = 0;
 const uint8_t OUTPUT_PIN = 1;
-const uint8_t BUTTON_PIN = 2;
-const uint8_t LED_PIN = 3;
+
+const uint8_t ENC_CLK = 2;
+const uint8_t ENC_DT = 3;
+const uint8_t ENC_SW = 4;
+
+const uint8_t CRESCENDO_BUTTON_PIN = 6;
+uint8_t CRESCENDO_POSITIONS = 16;
 
 uint16_t curSwellValues[MAX_SWELLS] = { 0, 0, 0, 0 };
 uint16_t lastSwellValues[MAX_SWELLS] { 0, 0, 0, 0 };
-uint16_t curCrescendoValue = 0;
-uint16_t lastCrescendoValue = 0;
+
+volatile uint16_t curCrescendoValue = 0;
 
 volatile bool crescendoActive = true;
+volatile bool ledOn = false;
 
 // Zmienia ilość pozycji danej żaluzji
 uint8_t changeSwellPositions(uint8_t swellIndex, uint8_t amount) {
@@ -82,17 +86,47 @@ uint8_t changeNSwells(uint8_t newAmount) {
     return OK;
 }
 
-uint8_t potentiometerToMidiValue(uint16_t value, uint8_t maxPositions) {
-    if (value < POTENTIOMETER_MIN)
-        value = POTENTIOMETER_MIN;
-    else if (value > POTENTIOMETER_MAX)
-        value = POTENTIOMETER_MAX;
+void sendMidi(uint8_t message, uint8_t channel, uint8_t value, bool DEBUG=false) {
+    if (DEBUG) {
+        Serial.print(message);
+        Serial.print(" ");
+        Serial.print(channel);
+        Serial.print(" ");
+        Serial.print(value);
+    }
+    else {
+        Serial.write(message);
+        Serial.write(channel);
+        Serial.write(value);
+    }   
+    
+    Serial.println();
+}
 
-    uint16_t calculated = value / (POTENTIOMETER_MAX / maxPositions);
+uint8_t potentiometerToMidiValue(uint16_t value, const uint16_t maxPositions) {
+    const float DIV = (POTENTIOMETER_MAX / maxPositions);
+    uint16_t calculated = (DIV < 1) ? value : value / DIV;
 
-    return calculated < 0 ?
-        0 : (calculated > 127 ?
-            127 : calculated);
+    return (calculated < SWELL_MIN) ? SWELL_MIN : 
+                                      (calculated > SWELL_MAX ? SWELL_MAX :
+                                                                calculated);
+}
+
+uint8_t crescendoToMidiValue(uint16_t value, const uint16_t maxPositions) {
+    Serial.println(curCrescendoValue);
+
+    return value > 127 ? 127 : value;
+}
+
+void setOutput(uint16_t value, uint8_t channel, uint8_t maxPositions, uint8_t (*conversionFunc)(uint16_t, uint16_t)) {
+    uint16_t calculated = conversionFunc(value, maxPositions);
+    uint8_t MIDI_value = ((VALUE_MAX / (maxPositions - 1)) + 1) * (calculated);
+
+    MIDI_value = MIDI_value > VALUE_MAX ?
+        VALUE_MAX : (MIDI_value < VALUE_MIN ?
+            VALUE_MIN : MIDI_value);
+
+    sendMidi(CC[channel], channel, MIDI_value, true);
 }
 
 /*
@@ -106,7 +140,7 @@ uint16_t smoothen(uint16_t newValue, uint16_t lastValue) {
 void swellsLogic() {
     for (int index = 0; index < N_SWELLS; index++) {
         uint8_t pin = SWELL_PINS[index];
-        uint16_t lastValue = lastSwellValues[index];     
+        uint16_t lastValue = lastSwellValues[index];
         uint16_t rawValue = analogRead(pin);
         uint16_t value = smoothen(rawValue, lastValue);
 
@@ -120,121 +154,105 @@ void swellsLogic() {
         bool lower = value < tmp;
 
         if (differ && (lower || higher)) {
-            // if (lower)
-            //     Serial.print("lower - ");
-            // if (higher)
-            //     Serial.print("higher - ");
-
-            // Serial.print(index);
-            // Serial.print(": ");
-            // Serial.print(value);
-            // Serial.print(" ");
-            // Serial.print(lastValue);
-            // Serial.print(" ");
-            // Serial.print(lastValue + POTENTIOMETER_BOUNCE);
-            // Serial.print(" ");
-            // Serial.println(tmp);
-
             uint8_t channel = SWELL_START_CHANNEL + index;
             uint8_t maxPositions = SWELL_POSITIONS[index];
 
-            setOutput(pin, value, channel, maxPositions);            
+            setOutput(value, channel, maxPositions, potentiometerToMidiValue);
             lastSwellValues[index] = value;
         }
     }
 }
 
 void crescendoLogic() {
-    // TODO: Wersja dla enkodera
+    Serial.println("C");
+    static bool lastCLK = HIGH;
+    bool currentCLK = digitalRead(ENC_CLK);
+
+    if (currentCLK != lastCLK) {
+        bool curDT = digitalRead(ENC_DT);
+
+        uint8_t crescIncr = (curCrescendoValue >= CRESCENDO_MAX) ? 0 : 1;
+        uint8_t crescDecr = (curCrescendoValue <= CRESCENDO_MIN) ? 0 : -1;
+
+        curCrescendoValue += (curDT != currentCLK ? crescIncr : crescDecr);
+
+        setOutput(curCrescendoValue, CRESCENDO_CHANNEL, CRESCENDO_POSITIONS, crescendoToMidiValue);
+    }
+
+    lastCLK = currentCLK;
 }
 
 void buttonLogic() {
-    if (digitalRead(BUTTON_PIN) == LOW) {
-        crescendoActive = !crescendoActive;        
-        digitalWrite(LED_PIN, crescendoActive ? LOW : HIGH);
+    if (digitalRead(CRESCENDO_BUTTON_PIN) == LOW) {
+        crescendoActive = !crescendoActive;
     }
-}
-
-void setOutput(uint8_t pin, uint16_t value, uint8_t channel, uint8_t maxPositions) {
-    uint8_t calculated = potentiometerToMidiValue(value, maxPositions);
-    uint8_t MIDI_value = ((VALUE_MAX / (maxPositions - 1)) + 1) * (calculated);
-
-    MIDI_value = MIDI_value > VALUE_MAX ?
-        VALUE_MAX : (MIDI_value < VALUE_MIN ?
-            VALUE_MIN : MIDI_value);
-
-    sendMidi(CC[channel], channel, MIDI_value);
-
-    // Serial.print((uint16_t)pin);
-    // Serial.print(" ");
-    // Serial.print((uint16_t)value);
-    // Serial.print(" ");
-    // Serial.print((uint16_t)calculated);
-    // Serial.print(" ");
-    // Serial.print((uint16_t)MIDI_value);
-    // Serial.print(" ");
-    // Serial.println((uint16_t)maxPositions);
-}
-
-void sendMidi(uint8_t message, uint8_t channel, uint8_t value) {
-    Serial.write(message);
-    Serial.write(channel);
-    Serial.write(value);    
 }
 
 void readMidi() {
     if (Serial.available()) {
-        uint8_t command = Serial.read();
+        ledOn = !ledOn;
 
-        if (command == 0x8F && command == 0x9F) {
-            uint8_t note = Serial.read();
-            uint8_t velocity = Serial.read();
+        byte command = Serial.read();
+        byte note = Serial.read();
+        byte velocity = Serial.read();
 
-            uint8_t channel = (command & 0x0F);
-            uint8_t type = command & 0xF0;
+        byte channel = (command & 0x0F);
+        byte type = command & 0xF0;
 
-            if (channel == ERR_CHANNEL) {
-                uint8_t result = OK;
+        Serial.print((int)note);
+        Serial.print(" ");
+        Serial.print((int)velocity);
+        Serial.print(" ");
+        Serial.print((int)channel);
+        Serial.print(" ");
+        Serial.println((int)type);
 
-                switch (note) {
-                    case CHANGE_N_SWELLS:
-                        result = changeNSwells(velocity);
-                        break;
-                    case CHANGE_CRESCENDO_POSITIONS:
-                        result = changeCrescendoPositions(velocity);
-                        break;
-                    case CHANGE_SWELL_POSITIONS_1:
-                        result = changeSwellPositions(0, velocity);
-                        break;
-                    case CHANGE_SWELL_POSITIONS_2:
-                        result = changeSwellPositions(1, velocity);
-                        break;
-                    case CHANGE_SWELL_POSITIONS_3:
-                        result = changeSwellPositions(2, velocity);
-                        break;
-                    case CHANGE_SWELL_POSITIONS_4:
-                        result = changeSwellPositions(3, velocity);
-                        break;
-                }
+        // if (channel == ERR_CHANNEL) {
+        //     uint8_t result = OK;
 
-                Serial.write(ON[ERR_CHANNEL]);
-                Serial.write(result);
-                Serial.write(VALUE_MAX);
-            }
-        }
+        //     switch (note) {
+        //         case CHANGE_N_SWELLS:
+        //             result = changeNSwells(velocity);
+        //             break;
+        //         case CHANGE_CRESCENDO_POSITIONS:
+        //             result = changeCrescendoPositions(velocity);
+        //             break;
+        //         case CHANGE_SWELL_POSITIONS_1:
+        //             result = changeSwellPositions(0, velocity);
+        //             break;
+        //         case CHANGE_SWELL_POSITIONS_2:
+        //             result = changeSwellPositions(1, velocity);
+        //             break;
+        //         case CHANGE_SWELL_POSITIONS_3:
+        //             result = changeSwellPositions(2, velocity);
+        //             break;
+        //         case CHANGE_SWELL_POSITIONS_4:
+        //             result = changeSwellPositions(3, velocity);
+        //             break;
+        //     }
+
+        //     Serial.write(ON[ERR_CHANNEL]);
+        //     Serial.write(result);
+        //     Serial.write(VALUE_MAX);
+        // }        
     }
 }
 
 // Inicjalizacja
 void setup() {
-    Serial.begin(115200); //31250 - baud rate dla MIDI. 115200 - baud rate dla hairless-serial.
-    pinMode(BUTTON_PIN, INPUT_PULLUP);
-    pinMode(LED_PIN, OUTPUT);
+    Serial.begin(115200); //31250 dla MIDI. 115200 dla hairless-serial.
+    pinMode(CRESCENDO_BUTTON_PIN, INPUT_PULLUP);
+    pinMode(ENC_DT, INPUT_PULLUP);
+    pinMode(ENC_SW, INPUT_PULLUP);
+    pinMode(ENC_CLK, INPUT_PULLUP);
+
+    attachInterrupt(digitalPinToInterrupt(ENC_CLK), crescendoLogic, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(ENC_DT), crescendoLogic, CHANGE);
 }
 
 // Główna pętla
 void loop() {
     swellsLogic();
-    crescendoLogic();
     buttonLogic();
+    // readMidi();
 }
