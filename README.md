@@ -1,6 +1,4 @@
 # Organ
- 
-## Opis
 Projekt ten ma na celu próbę stworzenia własnego kompletnego systemu wirtualnych organów - bazujących na samplach (sample-based). Składa się z dwóch części:
 1. Część wbudowana - zajmować się będzie sprawami sprzętowymi - żeby organy działały. Tutaj znajdują się wszelkie informacje nt. działania manuałów, pedału, pistonów itd. Na wyjściu będą jedynie zdarzenia MIDI.
 2. Część aplikacji - potrzebna jest aplikacja na komputer, która umożliwiałaby czytanie wychodzących zdarzeń MIDI (MIDI-events), wysyłanie własnych oraz reagowaniem na nie. Również żaden mikro-kontroler nie jest na tyle potężny, żeby *udźwignąć* kilkadziesiąt GB sampli, potężnej polifonii itd.
