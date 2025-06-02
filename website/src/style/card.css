@@ -1,0 +1,15 @@
+.card {
+    width: 200px;
+    height: 150px;
+    flex: 0 0 auto;
+    margin-right: 1rem;
+}
+
+.carousel-inner {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.carousel-item {
+    display: flex;
+}

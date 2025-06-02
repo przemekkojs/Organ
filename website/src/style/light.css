@@ -1,0 +1,53 @@
+.windows {
+    background-color: cadetblue;
+}
+
+.osx {
+    background-color: cornflowerblue;
+}
+
+.linux {
+    background-color: aquamarine;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.bg-primary {
+    background-color: #F9C80E !important;
+}
+
+.bg-light {
+    background-color: #FEFCFD !important;
+}
+
+.bg-accent {
+    background-color: #007CBE;
+}
+
+.text-primary {
+    color: #2D3142 !important;
+}
+
+.text-light {
+    color: #FEFCFD;
+}
+
+.bg-card {
+    background-color: #555B6E;    
+}
+
+.text-error {
+    color: #E3170A;
+}
+
+.nav-item {
+    transition-duration: 0.2s;
+    border-radius: 5px;
+}
+
+.nav-item:hover {
+    background-color: #FAD91F;
+    transition-duration: 0.2s;
+}

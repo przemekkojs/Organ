@@ -1,10 +1,13 @@
 <!DOCTYPE HTML>
 <html>
     <head>
-        <title>Organ - Strona główna</title>
+        <title>Organ</title>
 
         <link rel="stylesheet" href="style/bootstrap.min.css">
-        <link rel="stylesheet" href="style/style.css">
+        <link rel="stylesheet" href="style/main.css">
+        <link rel="stylesheet" href="style/light.css">
+        <link rel="stylesheet" href="style/card.css">
+        
         <link rel="icon" type="image/x-icon" href="img/favicon.ico">
 
         <meta charset="UTF-8">
@@ -15,13 +18,96 @@
     </head>
 
     <body>
-        <main>
+        <main class="bg-light text-primary">
             <header id="header">
                 <!-- Filled via JS -->
             </header>
 
-            <article>
+            <article class="ms-5 me-5 p-2">
+                <section class="text-center">
+                    <h1 class="h1">Organ</h1>
+                    <i>Wirtualny instrument piszczałkowy</i>
+                </section>
+                
+                <section class="mt-2">
+                    <p>
+                        Witaj na stronie internetowej poświęconej projektowi <i>Organ</i> - wszechstronnemu
+                        symulatorowi organów piszczałkowych. Projekt ma na celu być alternatywą dla takich rozwiązań
+                        jak <i>Hauptwerk</i>, <i>Grand Orgue</i>, <i>Great Organ</i> czy <i>Organteq</i>, dostarczając
+                        przy tym wielu zupełnie nowych funkcjonalności.
+                    </p>
 
+                    <!-- To będzie galeria karuzelowa -->
+                    <div id="carouselCards">
+                        <div class="carousel-inner">
+                            <div class="carousel-item">
+                                <div class="card">Karta 1</div>
+                                <div class="card">Karta 2</div>
+                                <div class="card">Karta 3</div>
+                                <div class="card">Karta 4</div>
+                                <div class="card">Karta 5</div>
+                                <div class="card">Karta 6</div>
+                                <div class="card">Karta 7</div>
+                                <div class="card">Karta 8</div>
+                            </div>
+                        </div>
+
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselCards">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselCards">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    </div>
+                    
+                    <p>
+                        Jeżeli zatem ograniczają Cię możliwości sprzętowe, fundusze lub nie udało Ci się znaleźć zestawu
+                        próbek, który spełni wszystkie twoje wymagania - skorzystaj z możliwości <i>Organ</i>. Aplikacja
+                        działa na platformach Windows, Mac/OSX czy nawet Linux. Uwolnij swoje wewnętrzne zwierzę sceniczne
+                        i zacznij korzystać z programu już dziś!
+                    </p>
+                </section>
+
+                <section class="mt-5 text-center">
+                    <h4 class="h4 m-3">Pobierz</h4>
+
+                    <div class="d-flex flex-row justify-content-center">
+                        <div class="me-2">
+                            <a class="windows pointer p-2 rounded text-decoration-none">Windows</a>
+                        </div>
+
+                        <div class="me-2">
+                            <a class="osx pointer p-2 rounded text-decoration-none">Mac/OSX</a>
+                        </div>
+
+                        <div>
+                            <a class="linux pointer p-2 rounded text-decoration-none">Linux</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h4>Dziennik zmian</h4>
+
+                    <div>
+                        <h5>22 maja 2025</h5>
+
+                        <div>
+                            <p>
+                                Założono tę oto stronę internetową, obecnie działające funkcjonalności obejmują głównie kod
+                                mikrokontrolerów - nie są zatem związane z samym programem. Wybrana została kolorystyka aplikacji
+                                oraz inne elementy związane ze stylami. Dodatkowo, działa cały <code>JavaScript</code>
+                                generowania menu czy stopki.
+                            </p>
+                            
+                            <p>
+                                Zatem - nawet jeżeli strona jeszcze nie została uruchomiona, czy aplikacja nie ma żadnej
+                                fizycznej formy - można potraktować tą datę jako symboliczny czas narodzin projektu.
+                            </p>
+                        </div>
+                    </div>
+                </section>
             </article>
 
             <footer id="footer">

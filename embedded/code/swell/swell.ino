@@ -126,7 +126,7 @@ void setOutput(uint16_t value, uint8_t channel, uint8_t maxPositions, uint8_t (*
         VALUE_MAX : (MIDI_value < VALUE_MIN ?
             VALUE_MIN : MIDI_value);
 
-    sendMidi(CC[channel], channel, MIDI_value, true);
+    sendMidi(CC[channel], channel, MIDI_value);
 }
 
 /*
@@ -253,6 +253,6 @@ void setup() {
 // Główna pętla
 void loop() {
     swellsLogic();
-    buttonLogic();
+    // buttonLogic();
     // readMidi();
 }
