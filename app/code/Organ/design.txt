@@ -1,0 +1,17 @@
+class voice
+	- name
+
+class section
+	- name
+	- voices[]
+
+class keyboard
+	- section
+	- device
+
+class MIDI_controller
+	- portNumber
+	- deviceName
+
+class organ
+	- keyboard[]
