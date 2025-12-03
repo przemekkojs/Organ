@@ -1,2 +1,6 @@
-#include <extern/pybind11/include/pybind11/pybind11.h>
+#include "bindings.h"
 #include "./h/app.h"
+
+void bind_app(pybind11::module_& m) {
+
+}

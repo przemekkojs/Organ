@@ -1,2 +1,6 @@
-#include <extern/pybind11/include/pybind11/pybind11.h>
+#include "bindings.h"
 #include "./h/combinations.h"
+
+void bind_combinations(pybind11::module_& m) {
+
+}

@@ -5,3 +5,6 @@ obj/
 
 app/code/Organ/.vs/
 app/code/Organ/out/
+app/code/Organ/python/*.ilk
+app/code/Organ/python/*.pyd
+app/code/Organ/python/*.pdb
