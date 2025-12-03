@@ -8,6 +8,17 @@
 
 constexpr int KEYBOARDS_COUNT = 6;
 
+static void printVoicesState(std::vector<std::shared_ptr<voice>>& voices) {
+    std::cout << "STATE: ";
+
+    for (auto& v : voices) {
+        auto current = v.get();
+        std::cout << current->isOn() << " ";
+    }
+
+    std::cout << "\n";
+}
+
 int main(int argc, char* argv[]) {
     setlocale(LC_ALL, nullptr);
 
@@ -34,6 +45,11 @@ int main(int argc, char* argv[]) {
         auto terz1_35 = std::make_shared<voice>(6, "Terz 1 3/5'");
         auto subbass16 = std::make_shared<voice>(7, "Subbass 16'");
         auto violon16 = std::make_shared<voice>(8, "Violon 16'");
+
+        std::vector<std::shared_ptr<voice>> allVoices =
+            { prinzipal8, floete8, gambe4, octave4, octave2, quinte2_23, terz1_35, subbass16, violon16 };
+
+        printVoicesState(allVoices);
         
         std::cout << "CREATING SECTIONS..." << "\n";
         std::vector<std::shared_ptr<section>> sections;

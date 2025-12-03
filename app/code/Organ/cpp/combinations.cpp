@@ -8,11 +8,11 @@ void combinationBank::addCombination(int id) {
     if (combinations.find(id) != combinations.end())
         return;
 
-    auto comb = std::make_unique<combination>();
+    auto comb = std::make_unique<combination>(id);
     comb->id = id;
 
     combinations[id] = std::move(comb);
-}
+}   
 
 void combinationBank::removeCombination(int id) {
     auto it = combinations.find(id);
@@ -24,14 +24,17 @@ void combinationBank::removeCombination(int id) {
 
     std::vector<int> idsToUpdate;
 
-    for (auto& [key, value] : combinations) {
+    for (auto& kv : combinations) {
+        auto& key = kv.first;
+        auto& val = kv.second;
+
         if (key > id) {
             idsToUpdate.push_back(key);
         }
     }
 
     for (int oldId : idsToUpdate) {
-        auto combPtr = std::move(combinations[oldId]);
+        std::unique_ptr<combination> combPtr = std::move(combinations[oldId]);
         combinations.erase(oldId);
         combPtr->id -= 1;
         combinations[combPtr->id] = std::move(combPtr);

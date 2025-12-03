@@ -17,9 +17,9 @@ MIDI_controller::MIDI_controller(int portNumber, std::string deviceName, bool in
 MIDI_controller::MIDI_controller(int portNumber, std::string deviceName) : MIDI_controller(portNumber, deviceName, true, false) {}
 MIDI_controller::~MIDI_controller() {}
 
+std::string MIDI_controller::getDeviceName() { return deviceName; }
 bool MIDI_controller::acceptsIn() const { return in; }
 bool MIDI_controller::sendsOut() const { return out; }
-std::string MIDI_controller::getDeviceName() { return deviceName; }
 int MIDI_controller::getPortNumber() const { return portNumber; }
 
 void MIDI_controller::setIn(bool in) { this->in = in; }

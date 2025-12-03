@@ -10,6 +10,7 @@ public:
 
 	std::string getName() const;
 	int getId() const;
+	bool isOn() const;
 
 	void voiceOn();
 	void voiceOff();

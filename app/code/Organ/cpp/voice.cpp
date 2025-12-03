@@ -11,6 +11,7 @@ voice::~voice() { }
 
 std::string voice::getName() const { return this->name; }
 int voice::getId() const { return this->id; }
+bool voice::isOn() const { return this->on; }
 
 void voice::voiceOn() { this->on = true; }
 void voice::voiceOff() { this->on = false; }
