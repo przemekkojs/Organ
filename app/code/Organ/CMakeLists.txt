@@ -18,6 +18,7 @@ add_library(rtmidi
     cpp/app.cpp
     cpp/voice_group.cpp
     cpp/combinations.cpp
+    cpp/piston_system.cpp
 
     h/keyboard.h
     h/MIDI_controller.h
@@ -27,6 +28,7 @@ add_library(rtmidi
     h/app.h
     h/voice_group.h
     h/combinations.h
+    h/piston_system.h
 )
 
 target_include_directories(rtmidi PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -43,6 +45,7 @@ pybind11_add_module(organ
     bindings/bind_section.cpp
     bindings/bind_voice.cpp
     bindings/bind_voice_group.cpp
+    bindings/bind_piston_system.cpp
 )
 
 target_link_libraries(organ PRIVATE rtmidi)

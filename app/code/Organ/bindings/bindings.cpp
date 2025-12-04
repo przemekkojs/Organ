@@ -9,4 +9,5 @@ PYBIND11_MODULE(organ, m) {
 	bind_section(m);
 	bind_voice(m);
 	bind_voice_group(m);
+	bind_piston_system(m);
 }

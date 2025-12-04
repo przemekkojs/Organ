@@ -2,8 +2,7 @@
 
 organ::organ() : organ(0) { }
 
-organ::organ(int keyboardCount)
-{
+organ::organ(int keyboardCount) : keyboards() {
     keyboards.reserve(keyboardCount);
 
     for (int i = 0; i < keyboardCount; i++) {

@@ -35,11 +35,11 @@ public:
 
 	MIDI_packet readMessage();
 
-private:
+protected:
 	int portNumber;
 	bool in;
 	bool out;
 	std::string deviceName;
 	RtMidiIn midiIn;
-	RtMidiOut midiOut;	
+	RtMidiOut midiOut;
 };

@@ -10,3 +10,4 @@ void bind_organ(pybind11::module_& m);
 void bind_section(pybind11::module_& m);
 void bind_voice(pybind11::module_& m);
 void bind_voice_group(pybind11::module_& m);
+void bind_piston_system(pybind11::module_& m);
