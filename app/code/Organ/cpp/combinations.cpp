@@ -2,7 +2,19 @@
 
 #include <algorithm>
 
-combinationBank::combinationBank(std::string& name) : combinations() { this->name = name; }
+combinationBank::combinationBank(std::string name) : combinations() { this->name = name; }
+
+std::string combinationBank::getName() const { return this->name; }
+const std::map<int, std::unique_ptr<combination>>& combinationBank::getCombinations() const { return this->combinations;  }
+
+combination* combinationBank::getCombination(int id) const {
+    auto it = combinations.find(id);
+
+    if (it == combinations.end())
+        return nullptr;
+
+    return it->second.get();
+}
 
 void combinationBank::addCombination(int id) {
     if (combinations.find(id) != combinations.end())

@@ -10,12 +10,16 @@ organ::organ(int keyboardCount) : keyboards() {
     }
 }
 
+organ::~organ() {
+    delete this->pSystem;
+}
+
 void organ::addKeyboard() {
-    keyboards.push_back(std::make_unique<keyboard>());
+    keyboards.push_back(std::unique_ptr<keyboard>(new keyboard(this->getKeyboardCount())));
 }
 
 void organ::addKeyboard(MIDI_controller* device, section* sect) {
-    keyboards.push_back(std::make_unique<keyboard>(device, sect));
+    keyboards.push_back(std::unique_ptr<keyboard>(new keyboard(this->getKeyboardCount(), device, sect)));
 
     if (sect != nullptr) {
         for (auto it = sections.begin(); it != sections.end(); ++it) {
@@ -66,4 +70,44 @@ void organ::removeVoiceGroup(voiceGroup* vGroup) {
 }
 
 const std::vector<std::unique_ptr<keyboard>>& organ::getKeyboards() const { return keyboards; }
+pistonSystem* organ::getPistonSystem() const { return this->pSystem; }
+
 int organ::getKeyboardCount() const { return static_cast<int>(keyboards.size()); }
+int organ::getSectionCount() const { return static_cast<int>(sections.size()); }
+int organ::getVoiceGroupCount() const { return static_cast<int>(voiceGroups.size()); }
+
+section* organ::getSection(int id) const {
+    for (auto& sPtr : this->sections) {
+        auto s = sPtr.get();
+
+        if (s->getId() == id) {
+            return s;
+        }
+    }
+
+    return nullptr;
+}
+
+keyboard* organ::getKeyboard(int id) const {
+    for (auto& kPtr : this->keyboards) {
+        auto k = kPtr.get();
+
+        if (k->getId() == id) {
+            return k;
+        }
+    }
+
+    return nullptr;
+}
+
+voiceGroup* organ::getVoiceGroup(int id) const {
+    for (auto& vgPtr : this->voiceGroups) {
+        auto vg = vgPtr.get();
+
+        if (vg->getId() == id) {
+            return vg;
+        }
+    }
+
+    return nullptr;
+}

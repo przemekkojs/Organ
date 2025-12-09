@@ -6,8 +6,7 @@ voice::voice(int id, std::string name) {
 	this->on = false;
 }
 
-voice::voice() : voice(-1, "Undefined") {}
-voice::~voice() { }
+voice::voice() : voice(-1, "G³os") { }
 
 std::string voice::getName() const { return this->name; }
 int voice::getId() const { return this->id; }

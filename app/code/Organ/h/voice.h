@@ -6,7 +6,6 @@ class voice {
 public:
 	voice();
 	voice(int id, std::string name);
-	~voice();
 
 	std::string getName() const;
 	int getId() const;

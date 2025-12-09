@@ -16,10 +16,14 @@ struct combination {
 
 class combinationBank {
 public:
-	combinationBank(std::string& name);
+	combinationBank(std::string name);
 
 	void addCombination(int id);
 	void removeCombination(int id);
+
+	const std::map<int, std::unique_ptr<combination>>& getCombinations() const;
+	std::string getName() const;
+	combination* getCombination(int id) const;
 
 private:
 	std::string name;

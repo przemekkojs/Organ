@@ -5,17 +5,19 @@
 
 class keyboard {
 public:
-	keyboard();
-	keyboard(MIDI_controller* device, section* section);	
+	keyboard(int id);
+	keyboard(int id, MIDI_controller* device, section* section);	
 	~keyboard();
-
-	section* getSection();
-	MIDI_controller* getDevice();
 
 	void setDevice(MIDI_controller* device);
 	void setSection(section* sect);
 
+	section* getSection() const;
+	MIDI_controller* getDevice() const;
+	int getId() const;
+
 private:
+	int id;
 	section* sect;
 	MIDI_controller* device;
 };

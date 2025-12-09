@@ -2,6 +2,7 @@
 
 std::vector<std::unique_ptr<MIDI_controller>> detectDevices() {
     RtMidiIn midiIn;
+
     unsigned int ports = midiIn.getPortCount();
     std::vector<std::unique_ptr<MIDI_controller>> controllers;
     controllers.reserve(ports);
