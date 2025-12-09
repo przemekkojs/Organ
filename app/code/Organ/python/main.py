@@ -6,7 +6,8 @@ from PySide6 import QtCore
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget,\
                               QVBoxLayout, QMenuBar, QMenu, QLineEdit,\
-                              QPushButton, QGroupBox, QHBoxLayout
+                              QPushButton, QGroupBox, QHBoxLayout,\
+                              QTextBrowser, QDialog, QLabel
 
 class LoadInstrument(QWidget):
     def __init__(self):
@@ -32,32 +33,59 @@ class MIDISettings(QWidget):
         self.setMinimumSize(300, 300)
 
 
-class About(QWidget):
-    def __init__(self):
-        super().__init__()
+class About(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
+        self.selfLayout = QVBoxLayout()
         self.setWindowTitle("O programie")
-        self.setMinimumSize(300, 300)
+        self.textBrowser = QTextBrowser()
+        self.textBrowser.setText("Organ - symulator wirtualnych organów piszczałkowych")
+        
+        self.setLayout(self.selfLayout)
+        self.selfLayout.addWidget(self.textBrowser)
 
 
 class Piston(QWidget):
-    def __init__(self):
+    def __init__(self, text:str):#, piston:piston):
         super().__init__()
+        #self.piston = piston
+        self.setFixedSize(100, 100)
+
+        self.button = QPushButton()
+        self.button.setText(text)
+        self.setLayout(QVBoxLayout())
+        self.layout().addWidget(self.button)        
+
+        # self.button.clicked.connect(piston.press())
 
 
 class Section(QWidget):
-    def __init__(self):
+    def __init__(self, name:str):
         super().__init__()
 
         self.pistons = []
+        self.setLayout(QVBoxLayout())
+
+        self.layout().addWidget(QLabel(name))
+
+        self.add_piston_button = QPushButton()
+        self.add_piston_button.setText("Dodaj piston")
+        self.add_piston_button.clicked.connect(lambda: self.add(str(random.randint(1, 10000))))
+        self.layout().addWidget(self.add_piston_button)
+
+        self.pistons_gb = QGroupBox()
+        self.pistons_layout = QHBoxLayout()
+        self.pistons_gb.setLayout(self.pistons_layout)
+        self.layout().addWidget(self.pistons_gb)
+
+    def add(self, text:str):
+        to_add = Piston(text)
+        self.pistons.append(to_add)
+        self.pistons_layout.addWidget(to_add)
 
 
 class Keyboard(QWidget):
-    def __init__(self):
-        super().__init__()
-
-    
-class Piston(QWidget):
     def __init__(self):
         super().__init__()
 
@@ -77,28 +105,36 @@ class MainWindow(QMainWindow):
         self.menu_bar = self.menuBar()
 
         self.file_menu = self.menu_bar.addMenu("Plik")
-        self.file_menu.addAction(QAction("Zapisz", self))
-        self.file_menu.addAction(QAction("Załaduj instrument", self))
+        self.save_action = QAction("Zapisz", self)
+        self.load_instrument_action = QAction("Załaduj instrument", self)
+        
+        for item in [self.save_action, self.load_instrument_action]:
+            self.file_menu.addAction(item)
 
         self.panel_menu = self.menu_bar.addMenu("Panel")
-        self.panel_menu.addAction(QAction("Klawiatury", self))
-        self.panel_menu.addAction(QAction("Manubria", self))
-        self.panel_menu.addAction(QAction("Kombinacje", self))
+        self.keyboards_action = QAction("Klawiatury", self)
+        self.pistons_action = QAction("Manubria", self)
+        self.combinations_action = QAction("Kombinacje", self)
+        
+        for item in [self.keyboards_action, self.pistons_action, self.combinations_action]:
+            self.panel_menu.addAction(item)
 
         self.settings_menu = self.menu_bar.addMenu("Ustawienia")
-        self.settings_menu.addAction(QAction("Dźwięk", self))
-        self.settings_menu.addAction(QAction("MIDI", self))
+        self.sound_action = QAction("Dźwięk", self)
+        self.midi_action = QAction("MIDI", self)
+
+        for item in [self.sound_action, self.midi_action]:
+            self.settings_menu.addAction(item)
 
         self.help_menu = self.menu_bar.addMenu("Pomoc")
-        self.help_menu.addAction(QAction("O programie", self))
+        self.about_action = QAction("O programie", self)
+        self.about_action.triggered.connect(self.show_about_window)
+
+        for item in [self.about_action]:
+            self.help_menu.addAction(item)
 
         # TEMPORARY:
         # self.organ = organ()
-
-        self.voice_count:int = 0
-        self.section_count:int = 0
-        self.keyboard_count:int = 0
-        self.voice_group_count:int = 0
 
         self.section_gb = QGroupBox()
         self.section_gb_l = QHBoxLayout()
@@ -129,6 +165,9 @@ class MainWindow(QMainWindow):
         sectionSount = self.sCount()
         # to_add:section = section(f"Sekcja {sectionSount}")    
         # self.organ.addSection(to_add)
+
+        s = Section(f"Sekcja {sectionSount}")
+        self.section_gb_l.addWidget(s)
         self.section_add_button.setText(f"Dodaj sekcję {sectionSount}")        
 
     def add_keyboard(self):
@@ -149,6 +188,10 @@ class MainWindow(QMainWindow):
     
     def kCount(self) -> int:
         return random.randint(0, 10000) #self.organ.getKeyboardsCount()
+    
+    def show_about_window(self):
+        self.about_window = About(parent=self)
+        self.about_window.show()
 
 
 def main():
