@@ -9,25 +9,25 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QWidget,\
                               QPushButton, QGroupBox, QHBoxLayout,\
                               QTextBrowser, QDialog, QLabel
 
-class LoadInstrument(QWidget):
-    def __init__(self):
-        super().__init__()
+class LoadInstrument(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
         self.setWindowTitle("Załaduj instrument")
         self.setMinimumSize(300, 300)
 
 
-class SoundSettings(QWidget):
-    def __init__(self):
-        super().__init__()
+class SoundSettings(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
         self.setWindowTitle("Dźwięk")
         self.setMinimumSize(300, 300)
 
 
-class MIDISettings(QWidget):
-    def __init__(self):
-        super().__init__()
+class MIDISettings(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
         self.setWindowTitle("MIDI")
         self.setMinimumSize(300, 300)
@@ -54,10 +54,22 @@ class Piston(QWidget):
 
         self.button = QPushButton()
         self.button.setText(text)
+        self.on_diode = QLabel()
+        
         self.setLayout(QVBoxLayout())
-        self.layout().addWidget(self.button)        
+        self.layout().addWidget(self.on_diode)
+        self.layout().addWidget(self.button)
 
-        # self.button.clicked.connect(piston.press())
+        self.setDiode()
+        self.button.clicked.connect(self.press)
+
+    def setDiode(self):
+        to_set:str = "□" if self.on_diode.text() == "■" else "■" #self.piston.isOn() else "■"
+        self.on_diode.setText(to_set)
+
+    def press(self):
+        # self.pison.press()
+        self.setDiode()
 
 
 class Section(QWidget):
@@ -107,6 +119,7 @@ class MainWindow(QMainWindow):
         self.file_menu = self.menu_bar.addMenu("Plik")
         self.save_action = QAction("Zapisz", self)
         self.load_instrument_action = QAction("Załaduj instrument", self)
+        self.load_instrument_action.triggered.connect(self.show_load_instrument_window)
         
         for item in [self.save_action, self.load_instrument_action]:
             self.file_menu.addAction(item)
@@ -121,7 +134,9 @@ class MainWindow(QMainWindow):
 
         self.settings_menu = self.menu_bar.addMenu("Ustawienia")
         self.sound_action = QAction("Dźwięk", self)
+        self.sound_action.triggered.connect(self.show_sound_settings_window)
         self.midi_action = QAction("MIDI", self)
+        self.midi_action.triggered.connect(self.show_midi_settings_window)
 
         for item in [self.sound_action, self.midi_action]:
             self.settings_menu.addAction(item)
@@ -152,11 +167,6 @@ class MainWindow(QMainWindow):
 
         self.selfLayout.addWidget(self.section_gb)
         self.selfLayout.addWidget(self.voice_group_gb)
-
-        self.midiSettings = MIDISettings()
-        self.soundSettings = SoundSettings()
-        self.about = About()
-        self.loadInstrument = LoadInstrument()
 
         self.voice_group_add_button.clicked.connect(self.add_voice_group)
         self.section_add_button.clicked.connect(self.add_section)
@@ -193,6 +203,17 @@ class MainWindow(QMainWindow):
         self.about_window = About(parent=self)
         self.about_window.show()
 
+    def show_midi_settings_window(self):
+        self.midi_settings_window = MIDISettings(parent=self)
+        self.midi_settings_window.show()
+
+    def show_sound_settings_window(self):
+        self.sound_settings_window = SoundSettings(parent=self)
+        self.sound_settings_window.show()
+
+    def show_load_instrument_window(self):
+        self.load_instrument_window = LoadInstrument(parent=self)
+        self.load_instrument_window.show()
 
 def main():
     app = QApplication(sys.argv)
