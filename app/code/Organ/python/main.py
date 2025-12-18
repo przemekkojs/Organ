@@ -76,6 +76,7 @@ class Section(QWidget):
     def __init__(self, name:str):
         super().__init__()
 
+        # self.section = section(name)
         self.pistons = []
         self.setLayout(QVBoxLayout())
 
@@ -98,8 +99,12 @@ class Section(QWidget):
 
 
 class Keyboard(QWidget):
-    def __init__(self):
+    def __init__(self, keyboard, number_of_keys):
         super().__init__()
+        self.keyboard = keyboard
+
+        self.number_of_keys = number_of_keys
+        self.keys = []
 
 
 class MainWindow(QMainWindow):

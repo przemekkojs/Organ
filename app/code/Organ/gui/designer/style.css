@@ -1,0 +1,74 @@
+html {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+body {
+
+}
+
+main {
+
+}
+
+#c-c-m-c-content {}
+
+#c-c-e-c-content {}
+
+#l-c-content {}
+
+#r-c-content {}
+
+#c-c-manuals-container {}
+
+#c-c-expression-container {}
+
+#c-c-pedal-container {}
+
+#c-c-i-usages {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+#main-container {
+    display: flex;
+    flex-direction: row;
+}
+
+#left-container {
+    flex: 0;
+    min-width: 20%;
+}
+
+#center-container {    
+    flex: 1;
+    min-width: 50%;
+    text-align: center;
+}
+
+#right-container {    
+    flex: 2;
+    min-width: 20%;
+    text-align: right;
+}
+
+
+.border-margin-padding {
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid black;
+}
+
+.horizontal-container {
+    display: flex;
+    flex-direction: row;
+
+    margin: 10px;
+    padding: 10px;
+}
+
+.vertical-container {
+    display:flex;
+    flex-direction: column;
+}

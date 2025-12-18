@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <link href="./style.css" rel="stylesheet">
+    </head>
+
+    <body>
+        <main>
+            <header>
+
+            </header>
+
+            <article>
+                <div>
+                    <div> <!-- Menu -->
+
+                    </div>
+
+                    <div id="main-container" class="border-margin-padding"> <!-- Kontener -->
+                        <div id="left-container" class="border-margin-padding"> <!-- Lewy -->
+                            <div>
+                                <h3>SEKCJE</h3>
+                            </div>
+
+                            <div id="l-c-content" class="border-margin-padding">
+
+                            </div>
+
+                            <div id="l-c-button-container" class="border-margin-padding">
+                                <input type="button" value="+" id="l-c-button" onclick="debug(event)">
+                            </div>
+                        </div>
+
+                        <div id="center-container" class="border-margin-padding"> <!-- Środek -->
+                            <div id="c-c-info" class="border-margin-padding"> <!-- Informacje -->
+                                <h2 id="c-c-i-instrument-name"></h2>
+
+                                <div id="c-c-i-usages" class="border-margin-padding">
+                                    <h4 id="c-c-i-ram-usage"></h4>
+                                    <h4 id="c-c-i-cpu-usage"></h4>
+                                </div>                                
+                            </div>
+
+                            <div id="c-c-manuals-container" class="border-margin-padding"> <!-- Manuały -->
+                                <div id="c-c-m-c-content" class="border-margin-padding">
+
+                                </div>
+
+                                <div id="c-c-m-c-button-container" class="border-margin-padding">
+                                    <input type="button" value="+" id="c-c-m-c-button" onclick="addKeyboard()">
+                                </div>
+                            </div>
+
+                            <div id="c-c-expression-container" class="border-margin-padding"> <!-- Pedały ekspresji -->
+                                <div id="c-c-e-c-content">
+                                    
+                                </div>
+                                
+                                <div id="c-c-e-c-button-container" class="border-margin-padding">
+                                    <input type="button" value="+" id="c-c-e-c-button" onclick="debug(event)">
+                                </div>
+                            </div>
+
+                            <div id="c-c-pedal-container" class="border-margin-padding"> <!-- Pedał -->
+                                <div id="c-c-p-c-pedal" class="border-margin-padding">
+
+                                </div>
+
+                                <div id="c-c-p-c-buttons-container" class="border-margin-padding">
+                                    <input type="button" value="o" id="r-c-button" onclick="debug(event)">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="right-container" class="border-margin-padding"> <!-- Prawy -->
+                            <div>
+                                <h3>PISTONY</h3>
+                            </div>
+
+                            <div id="r-c-content" class="border-margin-padding">
+
+                            </div>
+                            
+                            <div id="r-c-button-container" class="border-margin-padding">
+                                <input type="button" value="+" id="r-c-button" onclick="debug(event)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <footer>
+
+            </footer>
+        </main>
+
+        <script src="./designer.js"></script>
+    </body>
+</html>

@@ -14,4 +14,10 @@ Dodatkowo chcę dać możliwość tworzenia własnych paczek konfiguracyjnych do
 ## Technologie
 Ważna jest optymalizacja i szybkość działania, zatem postawię na:
 - **C/C++** - język programowania
-- **Juce** - UI oraz praca z MIDI czy dźwiękiem
+- **Python** - GUI, konkretnie z modułem `PySide6` - innymi słowy, `Qt`.
+
+
+## Inne informacje
+
+W tej sekcji zawarłem wszystkie dodatkowe informacje, które mogą okazać się przydatne przy odkrywaniu aplikacji:
+- W folderze `code/Organ/gui` jest plik `.html`, który służy jako wirtualny designer - takie samo GUI będę chciał stworzyć w samej aplikacji, więc może w przyszłości wykorzysta się to jako niejakie _demo_ produktu.
