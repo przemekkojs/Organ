@@ -94,7 +94,8 @@ class keyboard {
         if (keyNumber > this.numberOfKeys)
             return;
 
-        console.log(`Klawiatura ${id}: ${keyNumber}`);
+        console.log(`Klawiatura ${this.id}: ${keyNumber}`);
+        this.section.press(keyNumber);
     }
 
     setId(val) {        
@@ -144,11 +145,55 @@ function keyboardSettings(id) {
 // ============
 
 class piston {
+    id;
+    name;
+    controlledElements;
 
+    constructor(id, name) {
+        this.id = id;
+        this.name = name;
+        this.controlledElements = [];
+
+        this.htmlElement = document.createElement('div');
+        this.htmlElement.className = "";
+        this.htmlElement.id = `piston-${this.id}`;
+        this.htmlElement.innerHTML = `
+            <div>
+                <span id="piston-${this.id}-name">${this.name}</span>
+                <input type="button" value="O" id="piston-${this.id}-button" onclick="${() => this.press}">
+            </div>
+            
+            <div>
+                <input type="button" value="⚙" id="piston-${this.id}-settings" onclick="pistonSettings(${this.id})">
+                <input type="button" value="🗑" id="piston-${this.id}-remove" onclick="removePiston(${this.id})">
+            </div>
+        `;
+    }
+
+    press() {
+        console.log(`Piston (${this.id}, ${this.name})`)
+
+        this.controlledElements.forEach(ce => {
+            ce.press();
+        });
+    }
+
+    setId(val) {
+
+    }
+
+    setName(val) {
+        this.name = val;
+        document.getElementById(`piston-${this.id}-name`).innerText = val;
+    }
 }
 
 function addPiston() {
+    nextId = pistons.length;
+    toAdd = new piston(nextId, `Piston ${nextId}`);
 
+    pistons.push(toAdd);
+    rightContainerContent.appendChild(toAdd.htmlElement);
 }
 
 function removePiston(id) {
@@ -164,7 +209,37 @@ function pistonSettings(id) {
 // =============
 
 class section {
+    id;
+    name;
+    voices;
 
+    constructor() {
+
+    }
+
+    assignVoice() {
+
+    }
+
+    deassignVoice() {
+
+    }
+
+    press(keyNumber) {
+        console.log(`Sekcja: (${this.id}, ${this.name}), klawisz ${keyNumber}`);
+
+        voices.forEach(v => {
+            v.play();
+        });
+    }
+
+    setId(val) {
+
+    }
+
+    setName(val) {
+
+    }
 }
 
 function addSection() {
@@ -184,7 +259,15 @@ function sectionSettings(id) {
 // ================
 
 class expression {
+    id;
 
+    constructor(id) {
+        this.id = id;
+    }
+
+    setId(val) {
+
+    }
 }
 
 function addExpression() {
@@ -204,7 +287,25 @@ function expressionSettings(id) {
 // ===========
 
 class voice {
+    id;
+    name;
 
+    constructor(id, name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    play() {
+        console.log(`Głos (${this.id}, ${this.name})`)
+    }
+
+    setId(val) {
+
+    }
+
+    setName(val) {
+
+    }
 }
 
 function addVoice() {
