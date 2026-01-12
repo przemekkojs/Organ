@@ -117,8 +117,8 @@ class keyboard {
 }
 
 function addKeyboard() {
-    nextId = keyboards.length;    
-    toAdd = new keyboard(nextId);
+    let nextId = keyboards.length;    
+    let toAdd = new keyboard(nextId);
 
     keyboards.push(toAdd);
     centerContainerManualsContent.appendChild(toAdd.htmlElement);
@@ -159,13 +159,15 @@ class piston {
         this.htmlElement.id = `piston-${this.id}`;
         this.htmlElement.innerHTML = `
             <div>
-                <span id="piston-${this.id}-name">${this.name}</span>
-                <input type="button" value="O" id="piston-${this.id}-button" onclick="${() => this.press}">
-            </div>
-            
-            <div>
-                <input type="button" value="⚙" id="piston-${this.id}-settings" onclick="pistonSettings(${this.id})">
-                <input type="button" value="🗑" id="piston-${this.id}-remove" onclick="removePiston(${this.id})">
+                <div>
+                    <span id="piston-${this.id}-name">${this.name}</span>
+                    <input type="button" value="O" id="piston-${this.id}-button" onclick="${() => this.press}">
+                </div>
+                
+                <div>
+                    <input type="button" value="⚙" id="piston-${this.id}-settings" onclick="pistonSettings(${this.id})">
+                    <input type="button" value="🗑" id="piston-${this.id}-remove" onclick="removePiston(${this.id})">
+                </div>
             </div>
         `;
     }
@@ -179,7 +181,7 @@ class piston {
     }
 
     setId(val) {
-
+        this.id = val;
     }
 
     setName(val) {
@@ -189,8 +191,8 @@ class piston {
 }
 
 function addPiston() {
-    nextId = pistons.length;
-    toAdd = new piston(nextId, `Piston ${nextId}`);
+    let nextId = pistons.length;
+    let toAdd = new piston(nextId, `Piston ${nextId}`);
 
     pistons.push(toAdd);
     rightContainerContent.appendChild(toAdd.htmlElement);
@@ -212,17 +214,41 @@ class section {
     id;
     name;
     voices;
+    htmlElement;
 
-    constructor() {
+    constructor(id, name, voices=[]) {
+        this.id = id;
+        this.name = name;
+        this.voices = voices;
 
+        this.htmlElement = document.createElement('div');
+        this.htmlElement.id = `section-${id}-container`;
+        this.htmlElement.className = "";
+        this.htmlElement.innerHTML = `
+            <div>
+                <span id="section-${this.id}-name">${this.name}</span>
+                <input type="button" value="+" id="section-${this.id}-button">
+            </div>
+            
+            <div>
+                <input type="button" value="⚙" id="section-${this.id}-settings" onclick="sectionSettings(${this.id})">
+                <input type="button" value="🗑" id="section-${this.id}-remove" onclick="removeSection(${this.id})">
+            </div>
+
+            <div id="section-${id}-voices-container">
+
+            </div>
+        `;        
     }
 
-    assignVoice() {
-
+    assignVoice(voice) {
+        const voicesContainer = document.getElementById(`section-${this.id}-voices-container`);
+        voicesContainer.appendChild(voice.htmlElement);
     }
 
-    deassignVoice() {
-
+    deassignVoice(voice) {
+        const voicesContainer = document.getElementById(`section-${this.id}-voices-container`);
+        voicesContainer.removeChild(voice.htmlElement);
     }
 
     press(keyNumber) {
@@ -243,7 +269,12 @@ class section {
 }
 
 function addSection() {
+    let nextId = sections.length;
+    let toAdd = new section(nextId, `Sekcja ${nextId}`);
 
+    sections.push(toAdd);
+    leftContainerContent.appendChild(toAdd.htmlElement);
+    document.getElementById(`section-${toAdd.id}-button`).addEventListener('click', () => addVoice(toAdd));
 }
 
 function removeSection(id) {
@@ -289,10 +320,21 @@ function expressionSettings(id) {
 class voice {
     id;
     name;
+    section;
 
-    constructor(id, name) {
+    constructor(id, name, section) {
         this.id = id;
         this.name = name;
+        this.section = section;
+
+        this.htmlElement = document.createElement('div');
+        this.htmlElement.id = `voice-${id}-container`;
+        this.htmlElement.className = "";
+        this.htmlElement.innerHTML = `
+            <div>
+                Głos ${id}
+            </div>
+        `;
     }
 
     play() {
@@ -300,16 +342,31 @@ class voice {
     }
 
     setId(val) {
-
+        this.id = val;
     }
 
     setName(val) {
+        this.name = val;
+    }
 
+    setSection(val) {
+        sectId = this.section.id;
+        const cont = document.getElementById(`section-${sectId}-voices-container`);
+        cont.removeChild(this.htmlElement);
+
+        this.section = val;
+        this.section.appendChild(this.htmlElement);        
     }
 }
 
-function addVoice() {
+function addVoice(sect) {
+    console.log("abc");
 
+    let nextId = voices.length;
+    let toAdd = new voice(nextId, `Głos ${nextId}`);
+
+    sect.assignVoice(toAdd);
+    voices.push(toAdd);
 }
 
 function removeVoice(id) {
