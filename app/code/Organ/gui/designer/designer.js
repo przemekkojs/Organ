@@ -181,6 +181,17 @@ class piston {
     }
 
     setId(val) {
+        this.setName(`Piston ${val}`);
+        document.getElementById(`piston-${this.id}-name`).id = `piston-${val}-name`;
+        document.getElementById(`piston-${this.id}-button`).id = `piston-${val}-button`;        
+        document.getElementById(`piston-${this.id}`).id = `piston-${val}`;
+
+        document.getElementById(`piston-${this.id}-settings`).onclick = () => pistonSettings(val);
+        document.getElementById(`piston-${this.id}-remove`).onclick = () => removePiston(val);
+
+        document.getElementById(`piston-${this.id}-settings`).id = `piston-${val}-settings`;
+        document.getElementById(`piston-${this.id}-remove`).id = `piston-${val}-remove`;
+
         this.id = val;
     }
 
@@ -199,7 +210,15 @@ function addPiston() {
 }
 
 function removePiston(id) {
-    window.alert(`Czy na pewno usunąć piston ${id}?`);
+    if(window.confirm(`Czy na pewno usunąć piston ${id}?`)) {
+        elem = pistons.splice(id, 1)[0];
+        rightContainerContent.removeChild(elem.htmlElement);
+
+        for (let i = id; i < pistons.length; i++) {
+            current = pistons[i];
+            current.setId(i);
+        }
+    }
 }
 
 function pistonSettings(id) {
@@ -260,11 +279,24 @@ class section {
     }
 
     setId(val) {
+        this.setName(`Sekcja ${val}`);
+        document.getElementById(`section-${this.id}-container`).id = `section-${val}-container`;
+        document.getElementById(`section-${this.id}-name`).id = `section-${val}-name`;
+        document.getElementById(`section-${this.id}-button`).id = `section-${val}-button`;
+        document.getElementById(`section-${this.id}-voices-container`).id = `section-${val}-voices-container`;
 
+        document.getElementById(`section-${this.id}-remove`).onclick = () => removeSection(val);
+        document.getElementById(`section-${this.id}-settings`).onclick = () => sectionSettings(val);
+
+        document.getElementById(`section-${this.id}-remove`).id = `section-${val}-remove`;
+        document.getElementById(`section-${this.id}-settings`).id = `section-${val}-settings`;        
+
+        this.id = val;
     }
 
     setName(val) {
-
+        this.name = val;
+        document.getElementById(`section-${this.id}-name`).innerText = val;
     }
 }
 
@@ -278,7 +310,27 @@ function addSection() {
 }
 
 function removeSection(id) {
-    window.alert(`Czy na pewno usunąć sekcję ${id}?`);
+    if(window.confirm(`Czy na pewno usunąć sekcję ${id}?`)) {
+        let voicesToRemove = [];
+
+        voices.forEach(v => {
+            if (v.section.id === id) {
+                voicesToRemove.push(v);
+            }
+        });
+
+        voicesToRemove.forEach(v => {
+            removeVoice(v.id, conf=true);
+        });
+
+        elem = sections.splice(id, 1)[0];
+        leftContainerContent.removeChild(elem.htmlElement);
+
+        for (let i = id; i < sections.length; i++) {
+            current = sections[i];
+            current.setId(i);
+        }
+    }
 }
 
 function sectionSettings(id) {
@@ -291,9 +343,11 @@ function sectionSettings(id) {
 
 class expression {
     id;
+    keyboard;
 
-    constructor(id) {
+    constructor(id, keyboard) {
         this.id = id;
+        this.keyboard = keyboard;
     }
 
     setId(val) {
@@ -332,7 +386,14 @@ class voice {
         this.htmlElement.className = "";
         this.htmlElement.innerHTML = `
             <div>
-                Głos ${id}
+                <div>
+                    <span id="voice-${id}-name">Głos ${id}</span>
+                </div>
+
+                <div>
+                    <input type="button" value="⚙" id="voice-${this.id}-settings" onclick="voiceSettings(${this.id})">
+                    <input type="button" value="🗑" id="voice-${this.id}-remove" onclick="removeVoice(${this.id})">
+                </div>
             </div>
         `;
     }
@@ -341,12 +402,23 @@ class voice {
         console.log(`Głos (${this.id}, ${this.name})`)
     }
 
-    setId(val) {
+    setId(val) {        
+        this.setName(`Głos ${val}`);
+        document.getElementById(`voice-${this.id}-name`).id = `voice-${val}-name`;
+        document.getElementById(`voice-${this.id}-container`).id = `voice-${val}-container`;
+
+        document.getElementById(`voice-${this.id}-settings`).onclick = () => voiceSettings(val);
+        document.getElementById(`voice-${this.id}-remove`).onclick = () => removeVoice(val);
+
+        document.getElementById(`voice-${this.id}-remove`).id = `voice-${val}-remove`;
+        document.getElementById(`voice-${this.id}-settings`).id = `voice-${val}-settings`;
+
         this.id = val;
     }
 
     setName(val) {
         this.name = val;
+        document.getElementById(`voice-${this.id}-name`).innerText = val;
     }
 
     setSection(val) {
@@ -360,17 +432,23 @@ class voice {
 }
 
 function addVoice(sect) {
-    console.log("abc");
-
     let nextId = voices.length;
-    let toAdd = new voice(nextId, `Głos ${nextId}`);
+    let toAdd = new voice(nextId, `Głos ${nextId}`, sect);
 
     sect.assignVoice(toAdd);
     voices.push(toAdd);
 }
 
-function removeVoice(id) {
-    window.alert(`Czy na pewno usunąć głos ${id}?`);
+function removeVoice(id, conf=false) {
+    if(conf || window.confirm(`Czy na pewno usunąć głos ${id}?`)) {
+        elem = voices.splice(id, 1)[0];
+        elem.section.deassignVoice(elem);
+
+        for (let i = id; i < voices.length; i++) {
+            current = voices[i];
+            current.setId(i);
+        }
+    }
 }
 
 function voiceSettings(id) {
@@ -379,9 +457,4 @@ function voiceSettings(id) {
 
 window.addEventListener('DOMContentLoaded', () => {
     loadInstrument();
-    addSection();
-    addVoice(sections[0]);
-    addPiston();
-    addKeyboard();
-    addExpression();
 })
