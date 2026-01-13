@@ -254,7 +254,7 @@ class section {
                 <input type="button" value="🗑" id="section-${this.id}-remove" onclick="removeSection(${this.id})">
             </div>
 
-            <div id="section-${id}-voices-container">
+            <div id="section-${id}-voices-container" class="border-margin-padding">
 
             </div>
         `;        
@@ -383,17 +383,15 @@ class voice {
 
         this.htmlElement = document.createElement('div');
         this.htmlElement.id = `voice-${id}-container`;
-        this.htmlElement.className = "";
+        this.htmlElement.className = "border-margin-padding";
         this.htmlElement.innerHTML = `
             <div>
-                <div>
-                    <span id="voice-${id}-name">Głos ${id}</span>
-                </div>
+                <span id="voice-${id}-name">Głos ${id}</span>
+            </div>
 
-                <div>
-                    <input type="button" value="⚙" id="voice-${this.id}-settings" onclick="voiceSettings(${this.id})">
-                    <input type="button" value="🗑" id="voice-${this.id}-remove" onclick="removeVoice(${this.id})">
-                </div>
+            <div>
+                <input type="button" value="⚙" id="voice-${this.id}-settings" onclick="voiceSettings(${this.id})">
+                <input type="button" value="🗑" id="voice-${this.id}-remove" onclick="removeVoice(${this.id})">
             </div>
         `;
     }
